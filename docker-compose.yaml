@@ -1,0 +1,83 @@
+version: "3.5"
+
+services:
+  cassandra:
+    container_name: sandbox-temporal-cassandra
+    image: cassandra:3.11
+    networks:
+      - temporal-network
+    ports:
+      - 9042:9042
+
+  temporal:
+    container_name: sandbox-temporal
+    depends_on:
+      - cassandra
+    environment:
+      - CASSANDRA_SEEDS=cassandra
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
+    image: temporalio/auto-setup:1.7.0
+    networks:
+      - temporal-network
+    ports:
+      - 7233:7233
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+
+  temporal-admin-tools:
+    container_name: sandbox-temporal-admin-tools
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    image: temporalio/admin-tools:1.7.0
+    networks:
+      - temporal-network
+    stdin_open: true
+    tty: true
+
+  temporal-web:
+    container_name: sandbox-temporal-web
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+      - TEMPORAL_PERMIT_WRITE_API=true
+    image: temporalio/web:1.7.0
+    networks:
+      - temporal-network
+    ports:
+      - 8088:8088
+
+  api:
+    container_name: sandbox-temporal-api
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: cmd/api/Dockerfile
+    depends_on:
+      - worker
+    networks:
+      - temporal-network
+    ports:
+      - 8080:8080
+    environment:
+      - TEMPORAL_URL=temporal:7233
+
+  worker:
+    container_name: sandbox-temporal-worker
+    build:
+      context: .
+      dockerfile: cmd/worker/Dockerfile
+    depends_on:
+      - temporal
+      - temporal-web
+    networks:
+      - temporal-network
+    environment:
+      - TEMPORAL_URL=temporal:7233
+
+networks:
+  temporal-network:
+    driver: bridge
+    name: temporal-network
