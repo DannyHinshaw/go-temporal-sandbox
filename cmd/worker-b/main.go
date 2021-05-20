@@ -14,7 +14,7 @@ func main() {
 
 	// Create the client object just once per process
 	hp := common.GetHostPortEnv()
-	c, err := client.NewClient(client.Options{HostPort: hp})
+	c, err := client.NewClient(client.Options{HostPort: hp, Namespace: "worker-b"})
 	if err != nil {
 		log.Fatalln("unable to create Temporal client", err)
 	}
@@ -22,8 +22,8 @@ func main() {
 
 	// This worker hosts both Worker and Activity functions
 	w := worker.New(c, common.TaskQueue, worker.Options{})
-	w.RegisterWorkflow(workflows.TriggerBadActivity)
-	w.RegisterActivity(activities.ReturnNonSerializableJSON)
+	w.RegisterWorkflow(workflows.TriggerTestActivity)
+	w.RegisterActivity(activities.ReturnSomeJSON)
 
 	// Start listening to the Task Queue
 	err = w.Run(worker.InterruptCh())

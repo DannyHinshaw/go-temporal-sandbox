@@ -14,12 +14,12 @@ func Test_Workflow(t *testing.T) {
 	env := testSuite.NewTestWorkflowEnvironment()
 
 	// Mock activity implementation
-	env.OnActivity(activities.ReturnNonSerializableJSON).Return(nil, nil)
-	env.ExecuteWorkflow(TriggerBadActivity)
+	env.OnActivity(activities.ReturnSomeJSON).Return(nil, nil)
+	env.ExecuteWorkflow(TriggerTestActivity)
 	require.True(t, env.IsWorkflowCompleted())
 	require.NoError(t, env.GetWorkflowError())
 
-	var res common.BadJSON
+	var res common.SomeJSON
 	require.NoError(t, env.GetWorkflowResult(&res))
 	require.NotNil(t, res)
 }
