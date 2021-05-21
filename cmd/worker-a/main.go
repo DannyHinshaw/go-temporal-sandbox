@@ -15,8 +15,9 @@ import (
 	"go.temporal.io/sdk/worker"
 )
 
+var namespace = common.Namespaces.WorkerA
+
 const (
-	namespace                     = "worker-a"
 	ctxTimeout                    = 15 * time.Second
 	namespaceCacheRefreshInterval = 20 * time.Second
 	maxWaitForNamespaceAttempts   = 20
@@ -28,8 +29,9 @@ func waitForNamespaceReady(namespaceClient client.NamespaceClient, attempt int) 
 		return fmt.Errorf(`max attempts reached waiting for namespace "%s" ready`, namespace)
 	}
 
-	_, err := namespaceClient.Describe(context.Background(), namespace)
+	resp, err := namespaceClient.Describe(context.Background(), namespace)
 	if err == nil {
+		log.Printf(`successfully registered new namespace "%s"`, resp.NamespaceInfo.Name)
 		return nil
 	}
 
@@ -39,12 +41,13 @@ func waitForNamespaceReady(namespaceClient client.NamespaceClient, attempt int) 
 	return waitForNamespaceReady(namespaceClient, attempt+1)
 }
 
-// registerNamespace handles registering the namespace for the current worker.
+// registerNamespace handles registering the namespace for the current worker if necessary.
 func registerNamespace(hp string) {
 	namespaceClient, err := client.NewNamespaceClient(client.Options{HostPort: hp})
 	if err != nil {
 		log.Fatalln("error creating Temporal namespaceClient: ", err)
 	}
+	defer namespaceClient.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeout)
 	defer cancel()
@@ -54,8 +57,8 @@ func registerNamespace(hp string) {
 		Namespace:                        namespace,
 		WorkflowExecutionRetentionPeriod: &retention,
 	})
-	namespaceClient.Close()
 	if _, ok := err.(*serviceerror.NamespaceAlreadyExists); ok {
+		log.Printf(`namespace "%s" already exists, cancelling register`, namespace)
 		return
 	}
 

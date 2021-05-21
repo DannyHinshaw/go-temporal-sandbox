@@ -14,7 +14,7 @@ func main() {
 
 	// Create the client object just once per process
 	hp := common.GetHostPortEnv()
-	c, err := client.NewClient(client.Options{HostPort: hp, Namespace: "worker-b"})
+	c, err := client.NewClient(client.Options{HostPort: hp, Namespace: common.Namespaces.WorkerB})
 	if err != nil {
 		log.Fatalln("unable to create Temporal client", err)
 	}

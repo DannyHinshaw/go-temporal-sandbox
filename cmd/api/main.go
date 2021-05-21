@@ -1,18 +1,18 @@
 package main
 
 import (
-	"go-temporal-example/app/pkg/common"
-	"go.temporal.io/sdk/client"
 	"log"
 
 	"github.com/labstack/echo/v4"
 
 	"go-temporal-example/app/pkg/api/handlers"
+	"go-temporal-example/app/pkg/common"
+	"go.temporal.io/sdk/client"
 )
 
-const (
-	namespaceA = "worker-a"
-	namespaceB = "worker-b"
+var (
+	namespaceA = common.Namespaces.WorkerA
+	namespaceB = common.Namespaces.WorkerB
 )
 
 func main() {

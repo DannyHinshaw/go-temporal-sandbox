@@ -7,7 +7,7 @@ import (
 
 // ReturnSomeJSON simple activity returns arbitrary JSON.
 func ReturnSomeJSON() (*common.SomeJSON, error) {
-	log.Println("THE FUCKING ACTIVITY")
+	log.Println("ACTIVITY:: ReturnSomeJSON")
 	return &common.SomeJSON{
 		SomeProp: "someVal",
 	}, nil

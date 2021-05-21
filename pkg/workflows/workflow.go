@@ -10,7 +10,7 @@ import (
 
 // TriggerTestActivity triggers an activity that returns a JSON serializable struct.
 func TriggerTestActivity(ctx workflow.Context) (*common.SomeJSON, error) {
-	log.Println("THE FUCKING WORKFLOW")
+	log.Println("WORKFLOW:: TriggerTestActivity")
 	options := workflow.ActivityOptions{
 		StartToCloseTimeout: time.Second * 5,
 	}

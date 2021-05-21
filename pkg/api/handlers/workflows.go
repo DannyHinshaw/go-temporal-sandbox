@@ -3,11 +3,12 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"go-temporal-example/app/pkg/common"
 	"go.temporal.io/sdk/client"
-	"log"
-	"net/http"
 )
 
 // TestWorker is a test route for triggering an activity that returns an arbitrary response.
