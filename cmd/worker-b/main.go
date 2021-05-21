@@ -10,6 +10,8 @@ import (
 	"go.temporal.io/sdk/worker"
 )
 
+var namespace = common.Namespaces.WorkerB
+
 func main() {
 
 	// Create the client object just once per process
@@ -21,7 +23,7 @@ func main() {
 	defer c.Close()
 
 	// This worker hosts both Worker and Activity functions
-	w := worker.New(c, common.TaskQueue, worker.Options{})
+	w := worker.New(c, namespace, worker.Options{})
 	w.RegisterWorkflow(workflows.TriggerTestActivity)
 	w.RegisterActivity(activities.ReturnSomeJSON)
 

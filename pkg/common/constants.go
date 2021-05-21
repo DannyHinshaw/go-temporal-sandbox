@@ -1,7 +1,5 @@
 package common
 
-const TaskQueue = "TASK_QUEUE"
-
 type TemporalNamespaces struct {
 	WorkerA string
 	WorkerB string
