@@ -10,20 +10,22 @@ import (
 	"go.temporal.io/sdk/worker"
 )
 
+var namespace = common.Namespaces.WorkerB
+
 func main() {
 
 	// Create the client object just once per process
 	hp := common.GetHostPortEnv()
-	c, err := client.NewClient(client.Options{HostPort: hp})
+	c, err := client.NewClient(client.Options{HostPort: hp, Namespace: common.Namespaces.WorkerB})
 	if err != nil {
 		log.Fatalln("unable to create Temporal client", err)
 	}
 	defer c.Close()
 
 	// This worker hosts both Worker and Activity functions
-	w := worker.New(c, common.TaskQueue, worker.Options{})
-	w.RegisterWorkflow(workflows.TriggerBadActivity)
-	w.RegisterActivity(activities.ReturnNonSerializableJSON)
+	w := worker.New(c, namespace, worker.Options{})
+	w.RegisterWorkflow(workflows.TriggerTestActivity)
+	w.RegisterActivity(activities.ReturnSomeJSON)
 
 	// Start listening to the Task Queue
 	err = w.Run(worker.InterruptCh())

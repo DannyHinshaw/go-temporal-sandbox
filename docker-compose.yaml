@@ -16,7 +16,7 @@ services:
     environment:
       - CASSANDRA_SEEDS=cassandra
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
-    image: temporalio/auto-setup:1.7.0
+    image: temporalio/auto-setup:1.8.1
     networks:
       - temporal-network
     ports:
@@ -30,7 +30,7 @@ services:
       - temporal
     environment:
       - TEMPORAL_CLI_ADDRESS=temporal:7233
-    image: temporalio/admin-tools:1.7.0
+    image: temporalio/admin-tools:1.8.1
     networks:
       - temporal-network
     stdin_open: true
@@ -43,7 +43,7 @@ services:
     environment:
       - TEMPORAL_GRPC_ENDPOINT=temporal:7233
       - TEMPORAL_PERMIT_WRITE_API=true
-    image: temporalio/web:1.7.0
+    image: temporalio/web:1.8.1
     networks:
       - temporal-network
     ports:
@@ -56,7 +56,8 @@ services:
       context: .
       dockerfile: cmd/api/Dockerfile
     depends_on:
-      - worker
+      - worker-a
+#      - worker-b
     networks:
       - temporal-network
     ports:
@@ -64,11 +65,24 @@ services:
     environment:
       - TEMPORAL_URL=temporal:7233
 
-  worker:
-    container_name: sandbox-temporal-worker
+  worker-a:
+    container_name: sandbox-temporal-worker-a
     build:
       context: .
-      dockerfile: cmd/worker/Dockerfile
+      dockerfile: cmd/worker-a/Dockerfile
+    depends_on:
+      - temporal
+      - temporal-web
+    networks:
+      - temporal-network
+    environment:
+      - TEMPORAL_URL=temporal:7233
+
+  worker-b:
+    container_name: sandbox-temporal-worker-b
+    build:
+      context: .
+      dockerfile: cmd/worker-b/Dockerfile
     depends_on:
       - temporal
       - temporal-web

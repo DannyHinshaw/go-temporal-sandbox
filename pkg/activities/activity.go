@@ -1,14 +1,14 @@
 package activities
 
 import (
-	"fmt"
 	"go-temporal-example/app/pkg/common"
+	"log"
 )
 
-// ReturnNonSerializableJSON never returns an error, but returns BadJSON which will cause an error in Temporal.
-func ReturnNonSerializableJSON() (*common.BadJSON, error) {
-	return &common.BadJSON{
-		SomeProp: "",
-		Error:    fmt.Errorf("test error"),
+// ReturnSomeJSON simple activity returns arbitrary JSON.
+func ReturnSomeJSON() (*common.SomeJSON, error) {
+	log.Println("ACTIVITY:: ReturnSomeJSON")
+	return &common.SomeJSON{
+		SomeProp: "someVal",
 	}, nil
 }
