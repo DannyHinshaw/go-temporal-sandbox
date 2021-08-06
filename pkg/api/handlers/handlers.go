@@ -30,7 +30,7 @@ func NewHandler(temporalClientA client.Client, temporalClientB client.Client) *h
 func (h *handler) RegisterRouteHandlers(v1 *echo.Echo) {
 
 	// API Health check
-	v1.GET("/health", h.GETHealth)
+	v1.GET("/health", h.health)
 
 	// Test Workflow endpoints
 	v1.GET("/workflow-a", h.testWorkerA)
