@@ -1,24 +1,26 @@
 package main
 
 import (
+	"go-temporal-example/pkg/common/temporal"
 	"log"
 
 	"github.com/labstack/echo/v4"
 
-	"go-temporal-example/app/pkg/api/handlers"
-	"go-temporal-example/app/pkg/common"
+	"go-temporal-example/pkg/api/handlers"
+	itemporal "go-temporal-example/pkg/common/temporal"
+
 	"go.temporal.io/sdk/client"
 )
 
 var (
-	namespaceA = common.Namespaces.WorkerA
-	namespaceB = common.Namespaces.WorkerB
+	namespaceA = itemporal.Namespaces.WorkerA
+	namespaceB = itemporal.Namespaces.WorkerB
 )
 
 func main() {
 
 	// Create the client object just once per process
-	hp := common.GetHostPortEnv()
+	hp := temporal.GetHostPortEnv()
 	ca, err := client.NewClient(client.Options{HostPort: hp, Namespace: namespaceA})
 	if err != nil {
 		log.Fatalf(`unable to create Temporal client for namespace "%s": %s`, namespaceA, err)
@@ -38,7 +40,7 @@ func main() {
 	// Register middlewares
 	e.Use(h.HandlerMiddleware)
 
-	// Register the URL endpoints to Handler
+	// Register the URL endpoints to handler
 	h.RegisterRouteHandlers(e)
 
 	// Serve

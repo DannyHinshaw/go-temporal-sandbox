@@ -5,10 +5,10 @@ import (
 )
 
 // HandlerMiddleware is middleware to assign handler values centrally.
-func (h *Handler) HandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+func (h *handler) HandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		h.Context = c.Request().Context()
-		h.EchoContext = c
+		h.context = c.Request().Context()
+		h.echoContext = c
 		return next(c)
 	}
 }
