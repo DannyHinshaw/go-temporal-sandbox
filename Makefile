@@ -10,3 +10,9 @@ checkstyle:
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
 	goimports -l -w ${GOFILES_NOVENDOR}
+
+run:
+	docker-compose up -d
+
+stop:
+	docker-compose stop

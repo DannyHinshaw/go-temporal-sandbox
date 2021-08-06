@@ -1,26 +1,29 @@
 version: "3.5"
 
 services:
-  cassandra:
-    container_name: sandbox-temporal-cassandra
-    image: cassandra:3.11
-    networks:
-      - temporal-network
+  sandbox-temporal-postgresql:
+    container_name: sandbox-temporal-postgresql
+    environment:
+      - POSTGRES_USER=temporal
+      - POSTGRES_PASSWORD=temporal
+    image: postgres:9.6
     ports:
-      - 9042:9042
+      - "5432:5432"
 
   temporal:
     container_name: sandbox-temporal
     depends_on:
-      - cassandra
+      - sandbox-temporal-postgresql
     environment:
-      - CASSANDRA_SEEDS=cassandra
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=sandbox-temporal-postgresql
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
     image: temporalio/auto-setup:1.8.1
-    networks:
-      - temporal-network
     ports:
-      - 7233:7233
+      - "7233:7233"
     volumes:
       - ./dynamicconfig:/etc/temporal/config/dynamicconfig
 
@@ -31,8 +34,6 @@ services:
     environment:
       - TEMPORAL_CLI_ADDRESS=temporal:7233
     image: temporalio/admin-tools:1.8.1
-    networks:
-      - temporal-network
     stdin_open: true
     tty: true
 
@@ -44,10 +45,8 @@ services:
       - TEMPORAL_GRPC_ENDPOINT=temporal:7233
       - TEMPORAL_PERMIT_WRITE_API=true
     image: temporalio/web:1.8.1
-    networks:
-      - temporal-network
     ports:
-      - 8088:8088
+      - "8088:8088"
 
   api:
     container_name: sandbox-temporal-api
@@ -57,11 +56,9 @@ services:
       dockerfile: cmd/api/Dockerfile
     depends_on:
       - worker-a
-#      - worker-b
-    networks:
-      - temporal-network
+      - worker-b
     ports:
-      - 8080:8080
+      - "8080:8080"
     environment:
       - TEMPORAL_URL=temporal:7233
 
@@ -73,8 +70,6 @@ services:
     depends_on:
       - temporal
       - temporal-web
-    networks:
-      - temporal-network
     environment:
       - TEMPORAL_URL=temporal:7233
 
@@ -86,12 +81,5 @@ services:
     depends_on:
       - temporal
       - temporal-web
-    networks:
-      - temporal-network
     environment:
       - TEMPORAL_URL=temporal:7233
-
-networks:
-  temporal-network:
-    driver: bridge
-    name: temporal-network

@@ -1,11 +1,13 @@
 package workflows
 
 import (
-	"go-temporal-example/app/pkg/activities"
-	"go-temporal-example/app/pkg/common"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"go-temporal-example/pkg/common/models"
+	"go-temporal-example/pkg/worker-b/activities"
+
 	"go.temporal.io/sdk/testsuite"
 )
 
@@ -19,7 +21,7 @@ func Test_Workflow(t *testing.T) {
 	require.True(t, env.IsWorkflowCompleted())
 	require.NoError(t, env.GetWorkflowError())
 
-	var res common.SomeJSON
+	var res models.SomeJSON
 	require.NoError(t, env.GetWorkflowResult(&res))
 	require.NotNil(t, res)
 }

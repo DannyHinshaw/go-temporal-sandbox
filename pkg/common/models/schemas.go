@@ -1,4 +1,4 @@
-package common
+package models
 
 // SomeJSON arbitrary JSON.
 type SomeJSON struct {

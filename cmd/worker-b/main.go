@@ -1,35 +1,41 @@
 package main
 
 import (
-	"go-temporal-example/app/pkg/activities"
-	"go-temporal-example/app/pkg/common"
-	"go-temporal-example/app/pkg/workflows"
 	"log"
+
+	itemporal "go-temporal-example/pkg/common/temporal"
+	"go-temporal-example/pkg/worker-b/activities"
+	"go-temporal-example/pkg/worker-b/workflows"
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )
 
-var namespace = common.Namespaces.WorkerB
+var namespace = itemporal.Namespaces.WorkerB
 
 func main() {
 
 	// Create the client object just once per process
-	hp := common.GetHostPortEnv()
-	c, err := client.NewClient(client.Options{HostPort: hp, Namespace: common.Namespaces.WorkerB})
+	hp := itemporal.GetHostPortEnv()
+	c, err := client.NewClient(client.Options{HostPort: hp, Namespace: namespace})
 	if err != nil {
-		log.Fatalln("unable to create Temporal client", err)
+		log.Fatalln("error creating Temporal client", err)
 	}
 	defer c.Close()
 
-	// This worker hosts both Worker and Activity functions
-	w := worker.New(c, namespace, worker.Options{})
-	w.RegisterWorkflow(workflows.TriggerTestActivity)
-	w.RegisterActivity(activities.ReturnSomeJSON)
+	// Create namespaced temporal worker client.
+	temporalWorker, err := itemporal.NewTemporalWorkerClient(hp, namespace, worker.Options{})
+	if err != nil {
+		log.Fatalf(`unable to create Temporal client for namespace "%s": %s`, namespace, err)
+	}
+
+	// This worker hosts both Workflow and Activity functions
+	temporalWorker.RegisterWorkflow(workflows.TriggerTestActivity)
+	temporalWorker.RegisterActivity(activities.ReturnSomeJSON)
 
 	// Start listening to the Task Queue
-	err = w.Run(worker.InterruptCh())
+	err = temporalWorker.Run(worker.InterruptCh())
 	if err != nil {
-		log.Fatalln("unable to start Worker", err)
+		log.Fatalf(`error starting temporal worker "%s": %s`, namespace, err)
 	}
 }

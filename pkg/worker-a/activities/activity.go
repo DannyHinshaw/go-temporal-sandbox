@@ -1,14 +1,15 @@
 package activities
 
 import (
-	"go-temporal-example/app/pkg/common"
 	"log"
+
+	"go-temporal-example/pkg/common/models"
 )
 
 // ReturnSomeJSON simple activity returns arbitrary JSON.
-func ReturnSomeJSON() (*common.SomeJSON, error) {
+func ReturnSomeJSON() (*models.SomeJSON, error) {
 	log.Println("ACTIVITY:: ReturnSomeJSON")
-	return &common.SomeJSON{
+	return &models.SomeJSON{
 		SomeProp: "someVal",
 	}, nil
 }
